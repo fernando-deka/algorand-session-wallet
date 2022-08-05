@@ -6,7 +6,12 @@ import {PermissionCallback, Wallet, SignedTxn } from './wallets/wallet'
 import { Transaction, TransactionSigner } from 'algosdk'
 import MagicLink from './wallets/magiclink'
 
-export {PermissionResult, PermissionCallback, Wallet, SignedTxn} from './wallets/wallet'
+export {
+  PermissionResult,
+  PermissionCallback,
+  Wallet,
+  SignedTxn,
+} from "./wallets/wallet";
 
 export const allowedWallets = {
         'wallet-connect':WC,
@@ -31,39 +36,42 @@ export class SessionWallet {
         constructor(network: string, permissionCallback?: PermissionCallback, wname?: string, apiKey?:string) {
                 if (wname) this.setWalletPreference(wname)
 
-                this.network = network
+    this.network = network;
 
-                this.wname = this.walletPreference()
+    this.wname = this.walletPreference();
 
-                if(permissionCallback) this.permissionCallback = permissionCallback
+    if (permissionCallback) this.permissionCallback = permissionCallback;
 
-                if (!(this.wname in allowedWallets)) return
+    if (!(this.wname in allowedWallets)) return;
 
-                this.apiKey = apiKey
-                this.wallet = new allowedWallets[this.wname](network)
-		this.wallet.permissionCallback = this.permissionCallback
-                this.wallet.accounts = this.accountList()
-                this.wallet.defaultAccount = this.accountIndex()
+        this.apiKey = apiKey
+        this.wallet = new allowedWallets[this.wname](network)
+        this.wallet.permissionCallback = this.permissionCallback
+        this.wallet.accounts = this.accountList()
+        this.wallet.defaultAccount = this.accountIndex()
         }
 
-        async connect(): Promise<boolean> {
-		if(this.wallet === undefined) return false;
+  async connect(): Promise<boolean> {
+    if (this.wallet === undefined) return false;
 
-                switch (this.wname) {
-                        case 'insecure-wallet':
-                                const storedMnemonic = this.mnemonic()
+    switch (this.wname) {
+      case "insecure-wallet":
+        const storedMnemonic = this.mnemonic();
 
-                                const mnemonic = storedMnemonic ? storedMnemonic : 
-                                prompt("Paste your mnemonic space delimited (DO NOT USE WITH MAINNET ACCOUNTS)")
+        const mnemonic = storedMnemonic
+          ? storedMnemonic
+          : prompt(
+              "Paste your mnemonic space delimited (DO NOT USE WITH MAINNET ACCOUNTS)"
+            );
 
-                                if (!mnemonic) return false
+        if (!mnemonic) return false;
 
-                                if (await this.wallet.connect(mnemonic)) {
-                                        this.setMnemonic(mnemonic)
-                                        this.setAccountList(this.wallet.accounts)
-                                        this.wallet.defaultAccount = this.accountIndex()
-                                        return true
-                                }
+        if (await this.wallet.connect(mnemonic)) {
+          this.setMnemonic(mnemonic);
+          this.setAccountList(this.wallet.accounts);
+          this.wallet.defaultAccount = this.accountIndex();
+          return true;
+        }
 
                                 break
                         case 'magic-link':
@@ -83,7 +91,7 @@ export class SessionWallet {
                                 await this.wallet.connect((acctList)=>{
                                         this.setAccountList(acctList)
                                         this.wallet.defaultAccount = this.accountIndex()
-                                }) 
+                                })
 
                                 return true
                         default:
@@ -93,64 +101,77 @@ export class SessionWallet {
                                         return true
                                 }
 
-                                break
-                }
+        break;
+    }
 
-                // Fail
-                this.disconnect()
-                return false
-        }
+    // Fail
+    this.disconnect();
+    return false;
+  }
 
-        connected(): boolean { return (this.wallet !== undefined && this.wallet.isConnected()) }
+  connected(): boolean {
+    return this.wallet !== undefined && this.wallet.isConnected();
+  }
 
-        getSigner(): TransactionSigner {
-          return (txnGroup: Transaction[], indexesToSign: number[]) => {
-            return Promise.resolve(this.signTxn(txnGroup)).then((txns)=>{
-                return txns.map((tx)=>{return tx.blob})
-            });
-          };
-        }
+  getSigner(): TransactionSigner {
+    return (txnGroup: Transaction[], indexesToSign: number[]) => {
+      return Promise.resolve(this.signTxn(txnGroup)).then((txns) => {
+        return txns.map((tx) => {
+          return tx.blob;
+        }).filter((_, index) => indexesToSign.includes(index));
+      });
+    };
+  }
 
-        setAccountList(accts: string[]) { sessionStorage.setItem(acctListKey, JSON.stringify(accts)) }
-        accountList(): string[] {
-                const accts = sessionStorage.getItem(acctListKey);
-                return accts === "" || accts === null ? [] : JSON.parse(accts)
-        }
+  setAccountList(accts: string[]) {
+    sessionStorage.setItem(acctListKey, JSON.stringify(accts));
+  }
+  accountList(): string[] {
+    const accts = sessionStorage.getItem(acctListKey);
+    return accts === "" || accts === null ? [] : JSON.parse(accts);
+  }
 
-        setAccountIndex(idx: number) { this.wallet.defaultAccount = idx; sessionStorage.setItem(acctPreferenceKey, idx.toString()) }
-        accountIndex(): number {
-                const idx = sessionStorage.getItem(acctPreferenceKey);
-                return idx === null || idx === "" ? 0 : parseInt(idx, 10)
-        }
+  setAccountIndex(idx: number) {
+    this.wallet.defaultAccount = idx;
+    sessionStorage.setItem(acctPreferenceKey, idx.toString());
+  }
+  accountIndex(): number {
+    const idx = sessionStorage.getItem(acctPreferenceKey);
+    return idx === null || idx === "" ? 0 : parseInt(idx, 10);
+  }
 
-        setWalletPreference(wname: string) { this.wname = wname; sessionStorage.setItem(walletPreferenceKey, wname) }
-        walletPreference(): string {
-                const wp = sessionStorage.getItem(walletPreferenceKey)
-                return wp === null ? "" : wp
-        }
+  setWalletPreference(wname: string) {
+    this.wname = wname;
+    sessionStorage.setItem(walletPreferenceKey, wname);
+  }
+  walletPreference(): string {
+    const wp = sessionStorage.getItem(walletPreferenceKey);
+    return wp === null ? "" : wp;
+  }
 
-        setMnemonic(m: string) { sessionStorage.setItem(mnemonicKey, m) }
-        mnemonic(): string {
-                const mn = sessionStorage.getItem(mnemonicKey)
-                return mn === null ? "" : mn
-        }
+  setMnemonic(m: string) {
+    sessionStorage.setItem(mnemonicKey, m);
+  }
+  mnemonic(): string {
+    const mn = sessionStorage.getItem(mnemonicKey);
+    return mn === null ? "" : mn;
+  }
 
-        disconnect() {
-                if(this.wallet !== undefined) this.wallet.disconnect()
-                sessionStorage.setItem(walletPreferenceKey, '')
-                sessionStorage.setItem(acctPreferenceKey, '')
-                sessionStorage.setItem(acctListKey, '')
-                sessionStorage.setItem(mnemonicKey, '')
-        }
+  disconnect() {
+    if (this.wallet !== undefined) this.wallet.disconnect();
+    sessionStorage.setItem(walletPreferenceKey, "");
+    sessionStorage.setItem(acctPreferenceKey, "");
+    sessionStorage.setItem(acctListKey, "");
+    sessionStorage.setItem(mnemonicKey, "");
+  }
 
-        getDefaultAccount(): string {
-                if (!this.connected()) return ""
-                return this.wallet.getDefaultAccount()
-        }
+  getDefaultAccount(): string {
+    if (!this.connected()) return "";
+    return this.wallet.getDefaultAccount();
+  }
 
-        async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
-                if (!this.connected() && !await this.connect()) return []
-                return this.wallet.signTxn(txns)
-        }
-
+  async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
+    if (!this.connected() && !(await this.connect())) return [];
+    return this.wallet.signTxn(txns);
+  }
 }

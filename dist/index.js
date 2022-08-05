@@ -25,10 +25,10 @@ exports.allowedWallets = {
     'insecure-wallet': insecure_1.default,
     'magic-link': magiclink_1.default,
 };
-const walletPreferenceKey = 'wallet-preference';
-const acctListKey = 'acct-list';
-const acctPreferenceKey = 'acct-preference';
-const mnemonicKey = 'mnemonic';
+const walletPreferenceKey = "wallet-preference";
+const acctListKey = "acct-list";
+const acctPreferenceKey = "acct-preference";
+const mnemonicKey = "mnemonic";
 class SessionWallet {
     constructor(network, permissionCallback, wname, apiKey) {
         if (wname)
@@ -50,10 +50,11 @@ class SessionWallet {
             if (this.wallet === undefined)
                 return false;
             switch (this.wname) {
-                case 'insecure-wallet':
+                case "insecure-wallet":
                     const storedMnemonic = this.mnemonic();
-                    const mnemonic = storedMnemonic ? storedMnemonic :
-                        prompt("Paste your mnemonic space delimited (DO NOT USE WITH MAINNET ACCOUNTS)");
+                    const mnemonic = storedMnemonic
+                        ? storedMnemonic
+                        : prompt("Paste your mnemonic space delimited (DO NOT USE WITH MAINNET ACCOUNTS)");
                     if (!mnemonic)
                         return false;
                     if (yield this.wallet.connect(mnemonic)) {
@@ -73,7 +74,7 @@ class SessionWallet {
                         return true;
                     }
                     break;
-                case 'wallet-connect':
+                case "wallet-connect":
                     yield this.wallet.connect((acctList) => {
                         this.setAccountList(acctList);
                         this.wallet.defaultAccount = this.accountIndex();
@@ -92,30 +93,44 @@ class SessionWallet {
             return false;
         });
     }
-    connected() { return (this.wallet !== undefined && this.wallet.isConnected()); }
+    connected() {
+        return this.wallet !== undefined && this.wallet.isConnected();
+    }
     getSigner() {
         return (txnGroup, indexesToSign) => {
             return Promise.resolve(this.signTxn(txnGroup)).then((txns) => {
-                return txns.map((tx) => { return tx.blob; });
+                return txns.map((tx) => {
+                    return tx.blob;
+                }).filter((_, index) => indexesToSign.includes(index));
             });
         };
     }
-    setAccountList(accts) { sessionStorage.setItem(acctListKey, JSON.stringify(accts)); }
+    setAccountList(accts) {
+        sessionStorage.setItem(acctListKey, JSON.stringify(accts));
+    }
     accountList() {
         const accts = sessionStorage.getItem(acctListKey);
         return accts === "" || accts === null ? [] : JSON.parse(accts);
     }
-    setAccountIndex(idx) { this.wallet.defaultAccount = idx; sessionStorage.setItem(acctPreferenceKey, idx.toString()); }
+    setAccountIndex(idx) {
+        this.wallet.defaultAccount = idx;
+        sessionStorage.setItem(acctPreferenceKey, idx.toString());
+    }
     accountIndex() {
         const idx = sessionStorage.getItem(acctPreferenceKey);
         return idx === null || idx === "" ? 0 : parseInt(idx, 10);
     }
-    setWalletPreference(wname) { this.wname = wname; sessionStorage.setItem(walletPreferenceKey, wname); }
+    setWalletPreference(wname) {
+        this.wname = wname;
+        sessionStorage.setItem(walletPreferenceKey, wname);
+    }
     walletPreference() {
         const wp = sessionStorage.getItem(walletPreferenceKey);
         return wp === null ? "" : wp;
     }
-    setMnemonic(m) { sessionStorage.setItem(mnemonicKey, m); }
+    setMnemonic(m) {
+        sessionStorage.setItem(mnemonicKey, m);
+    }
     mnemonic() {
         const mn = sessionStorage.getItem(mnemonicKey);
         return mn === null ? "" : mn;
@@ -123,10 +138,10 @@ class SessionWallet {
     disconnect() {
         if (this.wallet !== undefined)
             this.wallet.disconnect();
-        sessionStorage.setItem(walletPreferenceKey, '');
-        sessionStorage.setItem(acctPreferenceKey, '');
-        sessionStorage.setItem(acctListKey, '');
-        sessionStorage.setItem(mnemonicKey, '');
+        sessionStorage.setItem(walletPreferenceKey, "");
+        sessionStorage.setItem(acctPreferenceKey, "");
+        sessionStorage.setItem(acctListKey, "");
+        sessionStorage.setItem(mnemonicKey, "");
     }
     getDefaultAccount() {
         if (!this.connected())
