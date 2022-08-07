@@ -102,7 +102,7 @@ class MagicLink implements Wallet {
   }
 
   async signBytes(b: Uint8Array): Promise<Uint8Array> {
-    throw new Error('Method not implemented.')
+    return this.connector.algorand.signTransaction(b);
   }
 
   async signTeal(teal: Uint8Array): Promise<Uint8Array> {
