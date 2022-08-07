@@ -1,7 +1,7 @@
 import { Transaction, TransactionParams } from 'algosdk';
 import { PermissionCallback, SignedTxn, Wallet } from './wallet';
 import { AlgorandExtension } from '@magic-ext/algorand';
-import { SDKBase } from '@magic-sdk/provider';
+import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
 interface MagicLinkSettings {
     apiKey: string;
     email: string;
@@ -11,9 +11,9 @@ declare class MagicLink implements Wallet {
     accounts: string[];
     defaultAccount: number;
     network: string;
-    connector: SDKBase & {
+    connector: InstanceWithExtensions<SDKBase, {
         algorand: AlgorandExtension;
-    };
+    }>;
     permissionCallback?: PermissionCallback;
     constructor(network: string);
     connect(settings: MagicLinkSettings): Promise<boolean>;

@@ -19,11 +19,11 @@ const insecure_1 = __importDefault(require("./wallets/insecure"));
 const walletconnect_1 = __importDefault(require("./wallets/walletconnect"));
 const magiclink_1 = __importDefault(require("./wallets/magiclink"));
 exports.allowedWallets = {
-    'wallet-connect': walletconnect_1.default,
-    'algo-signer': algosigner_1.default,
-    'my-algo-connect': myalgoconnect_1.default,
-    'insecure-wallet': insecure_1.default,
-    'magic-link': magiclink_1.default,
+    "wallet-connect": walletconnect_1.default,
+    "algo-signer": algosigner_1.default,
+    "my-algo-connect": myalgoconnect_1.default,
+    "insecure-wallet": insecure_1.default,
+    "magic-link": magiclink_1.default,
 };
 const walletPreferenceKey = "wallet-preference";
 const acctListKey = "acct-list";
@@ -64,11 +64,15 @@ class SessionWallet {
                         return true;
                     }
                     break;
-                case 'magic-link':
-                    let email = prompt("Type the email youd like to login with");
+                case "magic-link":
+                    const email = prompt("Type the email youd like to login with");
                     if (!email)
                         return false;
-                    if (yield this.wallet.connect({ email: email, apiKey: this.apiKey, rpcURL: "" })) {
+                    if (yield this.wallet.connect({
+                        email: email,
+                        apiKey: this.apiKey,
+                        rpcURL: "",
+                    })) {
                         this.setAccountList(this.wallet.accounts);
                         this.wallet.defaultAccount = this.accountIndex();
                         return true;
@@ -99,9 +103,11 @@ class SessionWallet {
     getSigner() {
         return (txnGroup, indexesToSign) => {
             return Promise.resolve(this.signTxn(txnGroup)).then((txns) => {
-                return txns.map((tx) => {
+                return txns
+                    .map((tx) => {
                     return tx.blob;
-                }).filter((_, index) => indexesToSign.includes(index));
+                })
+                    .filter((_, index) => indexesToSign.includes(index));
             });
         };
     }
