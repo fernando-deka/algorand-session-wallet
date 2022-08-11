@@ -75,7 +75,7 @@ class MagicLink implements Wallet {
   }
 
   disconnect() {
-    this.connector.user.logout();
+    if (this.connector && this.connector.user) this.connector.user.logout();
   }
 
   async getDefaultAccount(): Promise<string> {
