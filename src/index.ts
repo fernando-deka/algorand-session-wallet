@@ -1,4 +1,3 @@
-import AlgoSignerWallet from "./wallets/algosigner";
 import MyAlgoConnectWallet from "./wallets/myalgoconnect";
 import InsecureWallet from "./wallets/insecure";
 import WC from "./wallets/walletconnect";
@@ -15,9 +14,8 @@ export {
 
 export const allowedWallets = {
   "wallet-connect": WC,
-  "algo-signer": AlgoSignerWallet,
   "my-algo-connect": MyAlgoConnectWallet,
-  "insecure-wallet": InsecureWallet,
+  // "insecure-wallet": InsecureWallet,
   "magic-link": MagicLink,
 };
 
@@ -32,12 +30,16 @@ export class SessionWallet {
   network: string;
   apiKey: string;
   permissionCallback?: PermissionCallback;
+  rpcURL: string;
+  email: string;
 
   constructor(
     network: string,
     permissionCallback?: PermissionCallback,
     wname?: string,
-    apiKey?: string
+    email?: string,
+    apiKey?: string,
+    magiclinkRpcURL?: string
   ) {
     if (wname) this.setWalletPreference(wname);
 
@@ -50,6 +52,8 @@ export class SessionWallet {
     if (!(this.wname in allowedWallets)) return;
 
     this.apiKey = apiKey;
+    this.rpcURL = magiclinkRpcURL;
+    this.email = email;
     this.wallet = new allowedWallets[this.wname](network);
     this.wallet.permissionCallback = this.permissionCallback;
     this.wallet.accounts = this.accountList();
@@ -80,15 +84,11 @@ export class SessionWallet {
 
         break;
       case "magic-link":
-        const email = prompt("Type the email youd like to login with");
-
-        if (!email) return false;
-
         if (
           await this.wallet.connect({
-            email: email,
+            email: this.email,
             apiKey: this.apiKey,
-            rpcURL: "",
+            rpcURL: this.rpcURL,
           })
         ) {
           this.setAccountList(this.wallet.accounts);
@@ -119,8 +119,8 @@ export class SessionWallet {
     return false;
   }
 
-  connected(): boolean {
-    return this.wallet !== undefined && this.wallet.isConnected();
+  async connected(): Promise<boolean> {
+    return this.wallet !== undefined && (await this.wallet.isConnected());
   }
 
   getSigner(): TransactionSigner {
@@ -177,13 +177,13 @@ export class SessionWallet {
     sessionStorage.setItem(mnemonicKey, "");
   }
 
-  getDefaultAccount(): string {
-    if (!this.connected()) return "";
+  async getDefaultAccount(): Promise<string> {
+    if (!(await this.connected())) return "";
     return this.wallet.getDefaultAccount();
   }
 
   async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
-    if (!this.connected() && !(await this.connect())) return [];
+    if (!(await this.connected()) && !(await this.connect())) return [];
     return this.wallet.signTxn(txns);
   }
 }

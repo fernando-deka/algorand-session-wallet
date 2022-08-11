@@ -42,7 +42,7 @@ class MyAlgoConnectWallet {
     }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.isConnected())
+            if (yield this.isConnected())
                 return true;
             try {
                 const accounts = yield this.walletConn.connect();
@@ -55,15 +55,19 @@ class MyAlgoConnectWallet {
         });
     }
     isConnected() {
-        return this.accounts && this.accounts.length > 0;
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.accounts && this.accounts.length > 0;
+        });
     }
     disconnect() {
         /* noop */
     }
     getDefaultAccount() {
-        if (!this.isConnected())
-            return "";
-        return this.accounts[this.defaultAccount];
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(yield this.isConnected()))
+                return "";
+            return this.accounts[this.defaultAccount];
+        });
     }
     doSign(defaultAcct, txns) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -91,7 +95,7 @@ class MyAlgoConnectWallet {
     }
     signTxn(txns) {
         return __awaiter(this, void 0, void 0, function* () {
-            const defaultAcct = this.getDefaultAccount();
+            const defaultAcct = yield this.getDefaultAccount();
             if (this.permissionCallback) {
                 return yield this.permissionCallback.request({
                     approved: () => __awaiter(this, void 0, void 0, function* () {
@@ -110,7 +114,7 @@ class MyAlgoConnectWallet {
     }
     signTeal(teal, permissionCallback) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.walletConn.signLogicSig(teal, this.getDefaultAccount());
+            return yield this.walletConn.signLogicSig(teal, yield this.getDefaultAccount());
         });
     }
 }

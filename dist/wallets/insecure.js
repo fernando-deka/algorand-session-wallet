@@ -31,8 +31,12 @@ class InsecureWallet {
             return true;
         });
     }
-    static displayName() { return "Insecure Wallet"; }
-    displayName() { return InsecureWallet.displayName(); }
+    static displayName() {
+        return "Insecure Wallet";
+    }
+    displayName() {
+        return InsecureWallet.displayName();
+    }
     static img(inverted) {
         return logo;
     }
@@ -40,24 +44,36 @@ class InsecureWallet {
         return InsecureWallet.img(inverted);
     }
     isConnected() {
-        return this.accounts && this.accounts.length > 0 && Object.keys(this.pkToSk).length > 0;
+        return __awaiter(this, void 0, void 0, function* () {
+            return (this.accounts &&
+                this.accounts.length > 0 &&
+                Object.keys(this.pkToSk).length > 0);
+        });
     }
-    disconnect() { this.accounts = []; this.pkToSk = {}; }
+    disconnect() {
+        this.accounts = [];
+        this.pkToSk = {};
+    }
     getDefaultAccount() {
-        if (!this.isConnected())
-            return "";
-        return this.accounts[this.defaultAccount];
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(yield this.isConnected()))
+                return "";
+            return this.accounts[this.defaultAccount];
+        });
     }
     signTxn(txns) {
         return __awaiter(this, void 0, void 0, function* () {
             const signed = [];
-            const defaultAddr = this.getDefaultAccount();
+            const defaultAddr = yield this.getDefaultAccount();
             for (const txidx in txns) {
                 if (!txns[txidx])
                     continue;
                 const addr = algosdk_2.default.encodeAddress(txns[txidx].from.publicKey);
                 if (addr === defaultAddr) {
-                    signed.push({ txID: txns[txidx].txID(), blob: txns[txidx].signTxn(this.pkToSk[addr].sk) });
+                    signed.push({
+                        txID: txns[txidx].txID(),
+                        blob: txns[txidx].signTxn(this.pkToSk[addr].sk),
+                    });
                 }
                 else {
                     signed.push({ txID: "", blob: new Uint8Array() });
@@ -68,19 +84,19 @@ class InsecureWallet {
     }
     sign(txn) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addr = this.getDefaultAccount();
+            const addr = yield this.getDefaultAccount();
             return algosdk_2.default.signTransaction(new algosdk_1.Transaction(txn), this.pkToSk[addr].sk);
         });
     }
     signBytes(b) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addr = this.getDefaultAccount();
+            const addr = yield this.getDefaultAccount();
             return algosdk_2.default.signBytes(b, this.pkToSk[addr].sk);
         });
     }
     signTeal(teal) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error('Method not implemented.');
+            throw new Error("Method not implemented.");
         });
     }
 }

@@ -13,9 +13,9 @@ declare class WC implements Wallet {
     displayName(): string;
     static img(inverted: boolean): string;
     img(inverted: boolean): string;
-    isConnected(): boolean;
+    isConnected(): Promise<boolean>;
     disconnect(): void;
-    getDefaultAccount(): string;
+    getDefaultAccount(): Promise<string>;
     signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
     sign(txn: TransactionParams): Promise<SignedTxn>;
     signBytes(b: Uint8Array): Promise<Uint8Array>;

@@ -1,42 +1,42 @@
-import {Transaction } from 'algosdk';
+import { Transaction } from "algosdk";
 
 export interface SignedTxn {
-    txID: string;
-    blob: Uint8Array;
+  txID: string;
+  blob: Uint8Array;
 }
 
-// Meant for wallets that require a popup (MyAlgo Connect) 
+// Meant for wallets that require a popup (MyAlgo Connect)
 //  In most browsers triggering a popup requires the the user
 //  to have taken an action (like clicking something)
 //  so `request` this should trigger a popup where the click event
-//  is passed back into the sign functions 
+//  is passed back into the sign functions
 export interface PermissionResult {
-    approved(): Promise<SignedTxn[]>
-    declined(): Promise<SignedTxn[]>
+  approved(): Promise<SignedTxn[]>;
+  declined(): Promise<SignedTxn[]>;
 }
 
 export interface PermissionCallback {
-    request(PermissionResult): Promise<SignedTxn[]>
+  request(PermissionResult): Promise<SignedTxn[]>;
 }
 
 export interface Wallet {
-    accounts: string[];
-    defaultAccount: number;
-    network: string;
-    permissionCallback?: PermissionCallback;
+  accounts: string[];
+  defaultAccount: number;
+  network: string;
+  permissionCallback?: PermissionCallback;
 
-    displayName(): string;
+  displayName(): string;
 
-    img(inverted: boolean): string;
+  img(inverted: boolean): string;
 
-    connect(settings?: any): Promise<boolean>;
-    isConnected(): boolean;
+  connect(settings?: any): Promise<boolean>;
+  isConnected(): Promise<boolean>;
 
-    disconnect()
+  disconnect();
 
-    getDefaultAccount(): string;
+  getDefaultAccount(): Promise<string>;
 
-    signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
-    signBytes(b: Uint8Array): Promise<Uint8Array>;
-    signTeal(teal: Uint8Array): Promise<Uint8Array>;
+  signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
+  signBytes(b: Uint8Array): Promise<Uint8Array>;
+  signTeal(teal: Uint8Array): Promise<Uint8Array>;
 }

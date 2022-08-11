@@ -13,16 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SessionWallet = exports.allowedWallets = void 0;
-const algosigner_1 = __importDefault(require("./wallets/algosigner"));
 const myalgoconnect_1 = __importDefault(require("./wallets/myalgoconnect"));
-const insecure_1 = __importDefault(require("./wallets/insecure"));
 const walletconnect_1 = __importDefault(require("./wallets/walletconnect"));
 const magiclink_1 = __importDefault(require("./wallets/magiclink"));
 exports.allowedWallets = {
     "wallet-connect": walletconnect_1.default,
-    "algo-signer": algosigner_1.default,
     "my-algo-connect": myalgoconnect_1.default,
-    "insecure-wallet": insecure_1.default,
+    // "insecure-wallet": InsecureWallet,
     "magic-link": magiclink_1.default,
 };
 const walletPreferenceKey = "wallet-preference";
@@ -30,7 +27,7 @@ const acctListKey = "acct-list";
 const acctPreferenceKey = "acct-preference";
 const mnemonicKey = "mnemonic";
 class SessionWallet {
-    constructor(network, permissionCallback, wname, apiKey) {
+    constructor(network, permissionCallback, wname, email, apiKey, magiclinkRpcURL) {
         if (wname)
             this.setWalletPreference(wname);
         this.network = network;
@@ -40,6 +37,8 @@ class SessionWallet {
         if (!(this.wname in exports.allowedWallets))
             return;
         this.apiKey = apiKey;
+        this.rpcURL = magiclinkRpcURL;
+        this.email = email;
         this.wallet = new exports.allowedWallets[this.wname](network);
         this.wallet.permissionCallback = this.permissionCallback;
         this.wallet.accounts = this.accountList();
@@ -65,13 +64,10 @@ class SessionWallet {
                     }
                     break;
                 case "magic-link":
-                    const email = prompt("Type the email youd like to login with");
-                    if (!email)
-                        return false;
                     if (yield this.wallet.connect({
-                        email: email,
+                        email: this.email,
                         apiKey: this.apiKey,
-                        rpcURL: "",
+                        rpcURL: this.rpcURL,
                     })) {
                         this.setAccountList(this.wallet.accounts);
                         this.wallet.defaultAccount = this.accountIndex();
@@ -98,7 +94,9 @@ class SessionWallet {
         });
     }
     connected() {
-        return this.wallet !== undefined && this.wallet.isConnected();
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.wallet !== undefined && (yield this.wallet.isConnected());
+        });
     }
     getSigner() {
         return (txnGroup, indexesToSign) => {
@@ -150,13 +148,15 @@ class SessionWallet {
         sessionStorage.setItem(mnemonicKey, "");
     }
     getDefaultAccount() {
-        if (!this.connected())
-            return "";
-        return this.wallet.getDefaultAccount();
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(yield this.connected()))
+                return "";
+            return this.wallet.getDefaultAccount();
+        });
     }
     signTxn(txns) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.connected() && !(yield this.connect()))
+            if (!(yield this.connected()) && !(yield this.connect()))
                 return [];
             return this.wallet.signTxn(txns);
         });

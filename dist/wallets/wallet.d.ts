@@ -1,4 +1,4 @@
-import { Transaction } from 'algosdk';
+import { Transaction } from "algosdk";
 export interface SignedTxn {
     txID: string;
     blob: Uint8Array;
@@ -18,9 +18,9 @@ export interface Wallet {
     displayName(): string;
     img(inverted: boolean): string;
     connect(settings?: any): Promise<boolean>;
-    isConnected(): boolean;
+    isConnected(): Promise<boolean>;
     disconnect(): any;
-    getDefaultAccount(): string;
+    getDefaultAccount(): Promise<string>;
     signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
     signBytes(b: Uint8Array): Promise<Uint8Array>;
     signTeal(teal: Uint8Array): Promise<Uint8Array>;
