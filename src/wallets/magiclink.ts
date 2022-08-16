@@ -89,8 +89,8 @@ class MagicLink implements Wallet {
     ).toString("base64");
   }
 
-  async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
-    await this.reAuthenticate();
+  async signTxn(txns: Transaction[], forceAuth = true): Promise<SignedTxn[]> {
+    if (forceAuth) await this.reAuthenticate();
     const defaultAddressPK = await this.getDefaultAccountPkey();
 
     const result: SignedTxn[] = [];

@@ -68,7 +68,8 @@ class MagicLink {
         });
     }
     disconnect() {
-        this.connector.user.logout();
+        if (this.connector && this.connector.user)
+            this.connector.user.logout();
     }
     getDefaultAccount() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -82,9 +83,10 @@ class MagicLink {
             return buffer_1.Buffer.from(algosdk_1.default.decodeAddress(yield this.getDefaultAccount()).publicKey).toString("base64");
         });
     }
-    signTxn(txns) {
+    signTxn(txns, forceAuth = true) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.reAuthenticate();
+            if (forceAuth)
+                yield this.reAuthenticate();
             const defaultAddressPK = yield this.getDefaultAccountPkey();
             const result = [];
             for (const txnid in txns) {

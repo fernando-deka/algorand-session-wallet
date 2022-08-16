@@ -27,7 +27,7 @@ declare class MagicLink implements Wallet {
     disconnect(): void;
     getDefaultAccount(): Promise<string>;
     getDefaultAccountPkey(): Promise<string>;
-    signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
+    signTxn(txns: Transaction[], forceAuth?: boolean): Promise<SignedTxn[]>;
     sign(txn: TransactionParams): Promise<SignedTxn>;
     signBytes(b: Uint8Array): Promise<Uint8Array>;
     signTeal(teal: Uint8Array): Promise<Uint8Array>;

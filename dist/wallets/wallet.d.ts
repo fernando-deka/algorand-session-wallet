@@ -21,7 +21,7 @@ export interface Wallet {
     isConnected(): Promise<boolean>;
     disconnect(): any;
     getDefaultAccount(): Promise<string>;
-    signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
+    signTxn(txns: Transaction[], forceAuth?: boolean): Promise<SignedTxn[]>;
     signBytes(b: Uint8Array): Promise<Uint8Array>;
     signTeal(teal: Uint8Array): Promise<Uint8Array>;
 }
