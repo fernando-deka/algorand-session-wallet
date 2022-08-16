@@ -154,11 +154,11 @@ class SessionWallet {
             return this.wallet.getDefaultAccount();
         });
     }
-    signTxn(txns) {
+    signTxn(txns, forceAuth = true) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.connected()) && !(yield this.connect()))
                 return [];
-            return this.wallet.signTxn(txns);
+            return this.wallet.signTxn(txns, forceAuth);
         });
     }
 }

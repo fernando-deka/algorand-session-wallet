@@ -31,5 +31,5 @@ export declare class SessionWallet {
     mnemonic(): string;
     disconnect(): void;
     getDefaultAccount(): Promise<string>;
-    signTxn(txns: Transaction[]): Promise<SignedTxn[]>;
+    signTxn(txns: Transaction[], forceAuth?: boolean): Promise<SignedTxn[]>;
 }
