@@ -81,7 +81,7 @@ class MyAlgoConnectWallet implements Wallet {
         signedTxns.push(unsigned.length);
         unsigned.push(txn.toByte());
       } else {
-        signedTxns.push({ txID: "", blob: new Uint8Array() });
+        signedTxns.push({ txID: txn.txID(), blob: txn.toByte() });
       }
     }
 

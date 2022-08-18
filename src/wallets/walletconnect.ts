@@ -97,6 +97,7 @@ class WC implements Wallet {
 
   async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
     const defaultAddress = await this.getDefaultAccount();
+    await this.connect(() => null);
     const txnsToSign = txns.map((txn) => {
       const encodedTxn = Buffer.from(
         algosdk.encodeUnsignedTransaction(txn)
@@ -108,7 +109,6 @@ class WC implements Wallet {
     });
 
     const request = formatJsonRpcRequest("algo_signTxn", [txnsToSign]);
-
     const result: string[] = await this.connector.sendCustomRequest(request);
 
     return result.map((element, idx) => {
@@ -119,7 +119,7 @@ class WC implements Wallet {
           }
         : {
             txID: txns[idx].txID(),
-            blob: new Uint8Array(),
+            blob: txns[idx].toByte(),
           };
     });
   }

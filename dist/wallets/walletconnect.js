@@ -97,6 +97,7 @@ class WC {
     signTxn(txns) {
         return __awaiter(this, void 0, void 0, function* () {
             const defaultAddress = yield this.getDefaultAccount();
+            yield this.connect(() => null);
             const txnsToSign = txns.map((txn) => {
                 const encodedTxn = buffer_1.Buffer.from(algosdk_1.default.encodeUnsignedTransaction(txn)).toString("base64");
                 if (algosdk_1.default.encodeAddress(txn.from.publicKey) !== defaultAddress)
@@ -113,7 +114,7 @@ class WC {
                     }
                     : {
                         txID: txns[idx].txID(),
-                        blob: new Uint8Array(),
+                        blob: txns[idx].toByte(),
                     };
             });
         });
