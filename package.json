@@ -8,15 +8,15 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "@json-rpc-tools/utils": "^1.7.6",
-    "@magic-ext/algorand": "^4.0.0",
+    "@json-rpc-tools/utils": "1.7.6",
+    "@magic-ext/algorand": "4.0.0",
     "@randlabs/myalgo-connect": "^1.2.0",
-    "@walletconnect/client": "^1.8.0",
-    "@walletconnect/qrcode-modal": "^1.8.0",
-    "algorand-walletconnect-qrcode-modal": "^1.7.4",
+    "@walletconnect/client": "1.8.0",
+    "@walletconnect/qrcode-modal": "1.8.0",
+    "algorand-walletconnect-qrcode-modal": "1.7.4",
     "algosdk": "1.19.0",
-    "buffer": "^6.0.3",
-    "magic-sdk": "^9.0.0"
+    "buffer": "6.0.3",
+    "magic-sdk": "9.0.0"
   },
   "devDependencies": {
     "@types/node": "^16.4.13",
