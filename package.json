@@ -1,6 +1,6 @@
 {
   "name": "algorand-session-wallet",
-  "version": "1.7.0",
+  "version": "1.8.6",
   "description": "Session wallet to allow persisted wallet connection across multiple wallets",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,12 +9,14 @@
   ],
   "dependencies": {
     "@json-rpc-tools/utils": "^1.7.6",
-    "@randlabs/myalgo-connect": "^1.1.0",
-    "@walletconnect/client": "^1.6.5",
-    "@walletconnect/qrcode-modal": "^1.6.5",
-    "algorand-walletconnect-qrcode-modal": "^1.6.1",
-    "algosdk": "^1.15.0",
-    "buffer": "^6.0.3"
+    "@magic-ext/algorand": "^4.0.0",
+    "@randlabs/myalgo-connect": "^1.2.0",
+    "@walletconnect/client": "^1.8.0",
+    "@walletconnect/qrcode-modal": "^1.8.0",
+    "algorand-walletconnect-qrcode-modal": "^1.7.4",
+    "algosdk": "1.19.0",
+    "buffer": "^6.0.3",
+    "magic-sdk": "^9.0.0"
   },
   "devDependencies": {
     "@types/node": "^16.4.13",
@@ -27,7 +29,7 @@
     "build": "tsc",
     "test": "",
     "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run build",
+    "prepare": "tsc",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",

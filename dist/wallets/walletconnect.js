@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const algosdk_1 = __importDefault(require("algosdk"));
+const buffer_1 = require("buffer");
 const client_1 = __importDefault(require("@walletconnect/client"));
 const algorand_walletconnect_qrcode_modal_1 = __importDefault(require("algorand-walletconnect-qrcode-modal"));
 const utils_1 = require("@json-rpc-tools/utils");
@@ -33,7 +34,7 @@ class WC {
             // Check if connection is already established
             if (this.connector.connected)
                 return true;
-            this.connector.createSession();
+            yield this.connector.createSession();
             this.connector.on("connect", (error, payload) => {
                 if (error) {
                     throw error;
@@ -54,7 +55,7 @@ class WC {
                 if (error)
                     throw error;
             });
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 const reconn = setInterval(() => {
                     if (this.connector.connected) {
                         clearInterval(reconn);
@@ -79,21 +80,26 @@ class WC {
         return WC.img(inverted);
     }
     isConnected() {
-        return this.connector.connected;
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.connector.connected;
+        });
     }
     disconnect() {
         this.connector.killSession();
     }
     getDefaultAccount() {
-        if (!this.isConnected())
-            return "";
-        return this.accounts[this.defaultAccount];
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(yield this.isConnected()))
+                return "";
+            return this.accounts[this.defaultAccount];
+        });
     }
     signTxn(txns) {
         return __awaiter(this, void 0, void 0, function* () {
-            const defaultAddress = this.getDefaultAccount();
+            const defaultAddress = yield this.getDefaultAccount();
+            yield this.connect(() => null);
             const txnsToSign = txns.map((txn) => {
-                const encodedTxn = Buffer.from(algosdk_1.default.encodeUnsignedTransaction(txn)).toString("base64");
+                const encodedTxn = buffer_1.Buffer.from(algosdk_1.default.encodeUnsignedTransaction(txn)).toString("base64");
                 if (algosdk_1.default.encodeAddress(txn.from.publicKey) !== defaultAddress)
                     return { txn: encodedTxn, signers: [] };
                 return { txn: encodedTxn };
@@ -104,11 +110,11 @@ class WC {
                 return element
                     ? {
                         txID: txns[idx].txID(),
-                        blob: new Uint8Array(Buffer.from(element, "base64")),
+                        blob: new Uint8Array(buffer_1.Buffer.from(element, "base64")),
                     }
                     : {
                         txID: txns[idx].txID(),
-                        blob: new Uint8Array(),
+                        blob: txns[idx].toByte(),
                     };
             });
         });

@@ -1,9 +1,9 @@
-import AlgoSignerWallet from "./wallets/algosigner";
 import MyAlgoConnectWallet from "./wallets/myalgoconnect";
 import InsecureWallet from "./wallets/insecure";
 import WC from "./wallets/walletconnect";
 import { PermissionCallback, Wallet, SignedTxn } from "./wallets/wallet";
 import { Transaction, TransactionSigner } from "algosdk";
+import MagicLink from "./wallets/magiclink";
 
 export {
   PermissionResult,
@@ -14,9 +14,9 @@ export {
 
 export const allowedWallets = {
   "wallet-connect": WC,
-  "algo-signer": AlgoSignerWallet,
   "my-algo-connect": MyAlgoConnectWallet,
-  "insecure-wallet": InsecureWallet,
+  // "insecure-wallet": InsecureWallet,
+  "magic-link": MagicLink,
 };
 
 const walletPreferenceKey = "wallet-preference";
@@ -28,12 +28,18 @@ export class SessionWallet {
   wallet: Wallet;
   wname: string;
   network: string;
+  apiKey: string;
   permissionCallback?: PermissionCallback;
+  rpcURL: string;
+  email: string;
 
   constructor(
     network: string,
     permissionCallback?: PermissionCallback,
-    wname?: string
+    wname?: string,
+    email?: string,
+    apiKey?: string,
+    magiclinkRpcURL?: string
   ) {
     if (wname) this.setWalletPreference(wname);
 
@@ -45,6 +51,9 @@ export class SessionWallet {
 
     if (!(this.wname in allowedWallets)) return;
 
+    this.apiKey = apiKey;
+    this.rpcURL = magiclinkRpcURL;
+    this.email = email;
     this.wallet = new allowedWallets[this.wname](network);
     this.wallet.permissionCallback = this.permissionCallback;
     this.wallet.accounts = this.accountList();
@@ -74,6 +83,20 @@ export class SessionWallet {
         }
 
         break;
+      case "magic-link":
+        if (
+          await this.wallet.connect({
+            email: this.email,
+            apiKey: this.apiKey,
+            rpcURL: this.rpcURL,
+          })
+        ) {
+          this.setAccountList(this.wallet.accounts);
+          this.wallet.defaultAccount = this.accountIndex();
+          return true;
+        }
+
+        break;
       case "wallet-connect":
         await this.wallet.connect((acctList) => {
           this.setAccountList(acctList);
@@ -81,7 +104,6 @@ export class SessionWallet {
         });
 
         return true;
-
       default:
         if (await this.wallet.connect()) {
           this.setAccountList(this.wallet.accounts);
@@ -97,16 +119,18 @@ export class SessionWallet {
     return false;
   }
 
-  connected(): boolean {
-    return this.wallet !== undefined && this.wallet.isConnected();
+  async connected(): Promise<boolean> {
+    return this.wallet !== undefined && (await this.wallet.isConnected());
   }
 
   getSigner(): TransactionSigner {
     return (txnGroup: Transaction[], indexesToSign: number[]) => {
       return Promise.resolve(this.signTxn(txnGroup)).then((txns) => {
-        return txns.map((tx) => {
-          return tx.blob;
-        }).filter((_, index) => indexesToSign.includes(index));
+        return txns
+          .map((tx) => {
+            return tx.blob;
+          })
+          .filter((_, index) => indexesToSign.includes(index));
       });
     };
   }
@@ -153,13 +177,13 @@ export class SessionWallet {
     sessionStorage.setItem(mnemonicKey, "");
   }
 
-  getDefaultAccount(): string {
-    if (!this.connected()) return "";
+  async getDefaultAccount(): Promise<string> {
+    if (!(await this.connected())) return "";
     return this.wallet.getDefaultAccount();
   }
 
-  async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
-    if (!this.connected() && !(await this.connect())) return [];
-    return this.wallet.signTxn(txns);
+  async signTxn(txns: Transaction[], forceAuth = true): Promise<SignedTxn[]> {
+    if (!(await this.connected()) && !(await this.connect())) return [];
+    return this.wallet.signTxn(txns, forceAuth);
   }
 }

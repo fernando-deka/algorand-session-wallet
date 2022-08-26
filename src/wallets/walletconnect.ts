@@ -1,5 +1,6 @@
 import algosdk, { Transaction, TransactionParams } from "algosdk";
 import { PermissionCallback, SignedTxn, Wallet } from "./wallet";
+import { Buffer } from "buffer";
 
 import WalletConnect from "@walletconnect/client";
 import WalletConnectQRCodeModal from "algorand-walletconnect-qrcode-modal";
@@ -31,7 +32,7 @@ class WC implements Wallet {
     // Check if connection is already established
     if (this.connector.connected) return true;
 
-    this.connector.createSession();
+    await this.connector.createSession();
 
     this.connector.on("connect", (error, payload) => {
       if (error) {
@@ -55,8 +56,7 @@ class WC implements Wallet {
       if (error) throw error;
     });
 
-
-    return new Promise(resolve=>{
+    return new Promise((resolve) => {
       const reconn = setInterval(() => {
         if (this.connector.connected) {
           clearInterval(reconn);
@@ -82,7 +82,7 @@ class WC implements Wallet {
     return WC.img(inverted);
   }
 
-  isConnected(): boolean {
+  async isConnected(): Promise<boolean> {
     return this.connector.connected;
   }
 
@@ -90,13 +90,14 @@ class WC implements Wallet {
     this.connector.killSession();
   }
 
-  getDefaultAccount(): string {
-    if (!this.isConnected()) return "";
+  async getDefaultAccount(): Promise<string> {
+    if (!(await this.isConnected())) return "";
     return this.accounts[this.defaultAccount];
   }
 
   async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
-    const defaultAddress = this.getDefaultAccount();
+    const defaultAddress = await this.getDefaultAccount();
+    await this.connect(() => null);
     const txnsToSign = txns.map((txn) => {
       const encodedTxn = Buffer.from(
         algosdk.encodeUnsignedTransaction(txn)
@@ -108,7 +109,6 @@ class WC implements Wallet {
     });
 
     const request = formatJsonRpcRequest("algo_signTxn", [txnsToSign]);
-
     const result: string[] = await this.connector.sendCustomRequest(request);
 
     return result.map((element, idx) => {
@@ -119,7 +119,7 @@ class WC implements Wallet {
           }
         : {
             txID: txns[idx].txID(),
-            blob: new Uint8Array(),
+            blob: txns[idx].toByte(),
           };
     });
   }
