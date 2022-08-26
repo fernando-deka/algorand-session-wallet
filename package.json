@@ -1,5 +1,5 @@
 {
-  "name": "algorand-session-wallet",
+  "name": "algorand-session-wallet-deka",
   "version": "1.8.6",
   "description": "Session wallet to allow persisted wallet connection across multiple wallets",
   "main": "dist/index.js",
