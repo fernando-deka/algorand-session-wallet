@@ -14,7 +14,7 @@
     "@walletconnect/client": "^1.8.0",
     "@walletconnect/qrcode-modal": "^1.8.0",
     "algorand-walletconnect-qrcode-modal": "^1.7.4",
-    "algosdk": "1.19.0",
+    "algosdk": "^1.19.0",
     "buffer": "^6.0.3",
     "magic-sdk": "^9.0.0"
   },
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/barnjamin/algorand-session-wallet.git"
+    "url": "git+https://github.com/fernando-deka/algorand-session-wallet.git"
   },
   "keywords": [
     "Algorand",
