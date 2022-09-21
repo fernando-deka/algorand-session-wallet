@@ -85,8 +85,6 @@ class MagicLink {
     }
     signTxn(txns, forceAuth = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            // tslint:disable-next-line:no-console
-            console.log(forceAuth, yield this.connector.user.isLoggedIn(), !(yield this.connector.user.isLoggedIn()));
             if (forceAuth || !(yield this.connector.user.isLoggedIn()))
                 yield this.reAuthenticate();
             let result;
