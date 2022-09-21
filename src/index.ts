@@ -182,7 +182,7 @@ export class SessionWallet {
     return this.wallet.getDefaultAccount();
   }
 
-  async signTxn(txns: Transaction[], forceAuth = true): Promise<SignedTxn[]> {
+  async signTxn(txns: Transaction[], forceAuth = false): Promise<SignedTxn[]> {
     if (!(await this.connected()) && !(await this.connect())) return [];
     return this.wallet.signTxn(txns, forceAuth);
   }

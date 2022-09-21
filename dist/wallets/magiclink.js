@@ -83,10 +83,25 @@ class MagicLink {
             return buffer_1.Buffer.from(algosdk_1.default.decodeAddress(yield this.getDefaultAccount()).publicKey).toString("base64");
         });
     }
-    signTxn(txns, forceAuth = true) {
+    signTxn(txns, forceAuth = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (forceAuth)
+            // tslint:disable-next-line:no-console
+            console.log(forceAuth, yield this.connector.user.isLoggedIn(), !(yield this.connector.user.isLoggedIn()));
+            if (forceAuth || !(yield this.connector.user.isLoggedIn()))
                 yield this.reAuthenticate();
+            let result;
+            try {
+                result = yield this.signTxnBlock(txns);
+            }
+            catch (e) {
+                yield this.reAuthenticate();
+                result = yield this.signTxnBlock(txns);
+            }
+            return result;
+        });
+    }
+    signTxnBlock(txns) {
+        return __awaiter(this, void 0, void 0, function* () {
             const defaultAddressPK = yield this.getDefaultAccountPkey();
             const result = [];
             for (const txnid in txns) {
@@ -96,10 +111,7 @@ class MagicLink {
                 if (buffer_1.Buffer.from(txn.from.publicKey).toString("base64") !== defaultAddressPK)
                     result.push({ txID: txn.txID(), blob: txn.toByte() });
                 else
-                    result.push({
-                        txID: txn.txID(),
-                        blob: yield this.signBytes(txn.toByte()),
-                    });
+                    result.push(yield this.signBytesToTxn(txn.toByte()));
             }
             return result;
         });
@@ -109,9 +121,14 @@ class MagicLink {
             throw new Error("Method not implemented.");
         });
     }
-    signBytes(b) {
+    signBytesToTxn(b) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.connector.algorand.signTransaction(b);
+        });
+    }
+    signBytes(b) {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error("Method not implemented.");
         });
     }
     signTeal(teal) {

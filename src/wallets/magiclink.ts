@@ -89,10 +89,22 @@ class MagicLink implements Wallet {
     ).toString("base64");
   }
 
-  async signTxn(txns: Transaction[], forceAuth = true): Promise<SignedTxn[]> {
-    if (forceAuth) await this.reAuthenticate();
-    const defaultAddressPK = await this.getDefaultAccountPkey();
+  async signTxn(txns: Transaction[], forceAuth = false): Promise<SignedTxn[]> {
+    if (forceAuth || !(await this.connector.user.isLoggedIn()))
+      await this.reAuthenticate();
 
+    let result: SignedTxn[];
+    try {
+      result = await this.signTxnBlock(txns);
+    } catch (e) {
+      await this.reAuthenticate();
+      result = await this.signTxnBlock(txns);
+    }
+    return result;
+  }
+
+  async signTxnBlock(txns: Transaction[]): Promise<SignedTxn[]> {
+    const defaultAddressPK = await this.getDefaultAccountPkey();
     const result: SignedTxn[] = [];
     for (const txnid in txns) {
       if (!txns[txnid]) continue;
@@ -101,11 +113,7 @@ class MagicLink implements Wallet {
         Buffer.from(txn.from.publicKey).toString("base64") !== defaultAddressPK
       )
         result.push({ txID: txn.txID(), blob: txn.toByte() });
-      else
-        result.push({
-          txID: txn.txID(),
-          blob: await this.signBytes(txn.toByte()),
-        });
+      else result.push(await this.signBytesToTxn(txn.toByte()));
     }
 
     return result;
@@ -115,8 +123,12 @@ class MagicLink implements Wallet {
     throw new Error("Method not implemented.");
   }
 
-  async signBytes(b: Uint8Array): Promise<Uint8Array> {
+  async signBytesToTxn(b: Uint8Array): Promise<SignedTxn> {
     return this.connector.algorand.signTransaction(b);
+  }
+
+  async signBytes(b: Uint8Array): Promise<Uint8Array> {
+    throw new Error("Method not implemented.");
   }
 
   async signTeal(teal: Uint8Array): Promise<Uint8Array> {
