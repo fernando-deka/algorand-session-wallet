@@ -4,6 +4,7 @@ import WC from "./wallets/walletconnect";
 import { PermissionCallback, Wallet, SignedTxn } from "./wallets/wallet";
 import { Transaction, TransactionSigner } from "algosdk";
 import MagicLink from "./wallets/magiclink";
+import PeraConnectWallet from "./wallets/peraconnect";
 
 export {
   PermissionResult,
@@ -17,6 +18,7 @@ export const allowedWallets = {
   "my-algo-connect": MyAlgoConnectWallet,
   // "insecure-wallet": InsecureWallet,
   "magic-link": MagicLink,
+  "pera-connect": PeraConnectWallet,
 };
 
 const walletPreferenceKey = "wallet-preference";

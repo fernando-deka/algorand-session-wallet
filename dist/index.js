@@ -16,11 +16,13 @@ exports.SessionWallet = exports.allowedWallets = void 0;
 const myalgoconnect_1 = __importDefault(require("./wallets/myalgoconnect"));
 const walletconnect_1 = __importDefault(require("./wallets/walletconnect"));
 const magiclink_1 = __importDefault(require("./wallets/magiclink"));
+const peraconnect_1 = __importDefault(require("./wallets/peraconnect"));
 exports.allowedWallets = {
     "wallet-connect": walletconnect_1.default,
     "my-algo-connect": myalgoconnect_1.default,
     // "insecure-wallet": InsecureWallet,
     "magic-link": magiclink_1.default,
+    "pera-connect": peraconnect_1.default,
 };
 const walletPreferenceKey = "wallet-preference";
 const acctListKey = "acct-list";

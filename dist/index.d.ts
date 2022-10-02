@@ -3,11 +3,13 @@ import WC from "./wallets/walletconnect";
 import { PermissionCallback, Wallet, SignedTxn } from "./wallets/wallet";
 import { Transaction, TransactionSigner } from "algosdk";
 import MagicLink from "./wallets/magiclink";
+import PeraConnectWallet from "./wallets/peraconnect";
 export { PermissionResult, PermissionCallback, Wallet, SignedTxn, } from "./wallets/wallet";
 export declare const allowedWallets: {
     "wallet-connect": typeof WC;
     "my-algo-connect": typeof MyAlgoConnectWallet;
     "magic-link": typeof MagicLink;
+    "pera-connect": typeof PeraConnectWallet;
 };
 export declare class SessionWallet {
     wallet: Wallet;
