@@ -83,30 +83,35 @@ class PeraConnectWallet implements Wallet {
   async signTxn(txns: Transaction[]): Promise<SignedTxn[]> {
     const defaultAddress = await this.getDefaultAccount();
     await this.connect();
-    const txnsToSign: SignerTransaction[] = txns.map((txn) => {
-      if (algosdk.encodeAddress(txn.from.publicKey) !== defaultAddress)
-        return { txn, signers: [] };
-      return { txn, signers: undefined };
-    });
+
+    const unsigned = [];
+    const signedTxns = [];
+    for (const tidx in txns) {
+      if (!txns[tidx]) continue;
+
+      const txn = txns[tidx];
+      if (algosdk.encodeAddress(txn.from.publicKey) === defaultAddress) {
+        signedTxns.push(unsigned.length);
+        unsigned.push({ txn, signers: [] });
+      } else {
+        unsigned.push({ txn, signers: undefined });
+        signedTxns.push({ txID: txn.txID(), blob: txn.toByte() });
+      }
+    }
 
     const result: Uint8Array[] = await this.peraConnect.signTransaction([
-      txnsToSign,
+      unsigned,
     ]);
 
-    // tslint:disable-next-line:no-console
-    console.log(result);
+    for (let x = 0; x < signedTxns.length; x++) {
+      if (typeof signedTxns[x] === "number")
+        signedTxns[x] = {
+          txID: txns[signedTxns[x]].txID(),
+          blob: result[signedTxns[x]],
+        };
+    }
 
-    return result.map((element, idx) => {
-      return element
-        ? {
-            txID: txns[idx].txID(),
-            blob: element,
-          }
-        : {
-            txID: txns[idx].txID(),
-            blob: txns[idx].toByte(),
-          };
-    });
+    return signedTxns;
   }
 
   signBytes(

@@ -1,6 +1,6 @@
 {
   "name": "algorand-session-wallet-deka",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Session wallet to allow persisted wallet connection across multiple wallets",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
   "dependencies": {
     "@json-rpc-tools/utils": "1.7.6",
     "@magic-ext/algorand": "4.0.0",
-    "@perawallet/connect": "^0.2.3",
+    "@perawallet/connect": "^1.0.7",
     "@randlabs/myalgo-connect": "^1.2.0",
     "@walletconnect/client": "1.8.0",
     "@walletconnect/qrcode-modal": "1.8.0",
